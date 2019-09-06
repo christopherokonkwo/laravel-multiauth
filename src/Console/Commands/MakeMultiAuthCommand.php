@@ -4,6 +4,7 @@ namespace Bitfumes\Multiauth\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Container\Container;
+use Illiminate\Support\Str;
 
 class MakeMultiAuthCommand extends Command
 {
@@ -84,7 +85,7 @@ class MakeMultiAuthCommand extends Command
 
         foreach ($keys as $key) {
             $compiled = strtr($key['stub'], $this->parseName());
-            $auth     = str_replace($key['to_replace'], $key['to_replace'] . $compiled, $auth);
+            $auth     = Str::replace($key['to_replace'], $key['to_replace'] . $compiled, $auth);
         }
 
         file_put_contents(config_path('auth.php'), $auth);
@@ -96,7 +97,7 @@ class MakeMultiAuthCommand extends Command
     protected function checkGuard()
     {
         $providers = array_keys(config('auth.providers'));
-        $name      = str_plural($this->name);
+        $name      = Str::plural($this->name);
 
         return in_array($name, $providers);
     }
@@ -180,7 +181,7 @@ class MakeMultiAuthCommand extends Command
         }
 
         preg_match('/\s+\/\*\*\n\s+\*\s(\w+\s)+"web"\s(\w+\s)+\w+.\n/', $provider, $match);
-        $provider = str_replace($match[0], $map . $match[0], $provider);
+        $provider = Str::replace($match[0], $map . $match[0], $provider);
         /********** Function Call **********/
 
         $map_call = file_get_contents($this->stub_path . '/routes/map_call.stub');
@@ -189,7 +190,7 @@ class MakeMultiAuthCommand extends Command
 
         $map_call_bait = '$this->mapWebRoutes();';
 
-        $provider = str_replace($map_call_bait, $map_call_bait . $map_call, $provider);
+        $provider = Str::replace($map_call_bait, $map_call_bait . $map_call, $provider);
 
         // Overwrite config file
         file_put_contents($provider_path, $provider);
@@ -303,7 +304,7 @@ class MakeMultiAuthCommand extends Command
 
         $route_middleware_bait = 'protected $routeMiddleware = [';
 
-        $kernel = str_replace($route_middleware_bait, $route_middleware_bait . $route_middleware, $kernel);
+        $kernel = Str::replace($route_middleware_bait, $route_middleware_bait . $route_middleware, $kernel);
 
         // Overwrite config file
         file_put_contents($kernel_path, $kernel);
@@ -350,14 +351,14 @@ class MakeMultiAuthCommand extends Command
         }
 
         return [
-            '{{pluralCamel}}'   => str_plural(camel_case($name)),
-            '{{pluralSlug}}'    => str_plural(str_slug($name)),
-            '{{pluralSnake}}'   => str_plural(snake_case($name)),
-            '{{pluralClass}}'   => str_plural(studly_case($name)),
-            '{{singularCamel}}' => str_singular(camel_case($name)),
-            '{{singularSlug}}'  => str_singular(str_slug($name)),
-            '{{singularSnake}}' => str_singular(snake_case($name)),
-            '{{singularClass}}' => str_singular(studly_case($name)),
+            '{{pluralCamel}}'   => Str::plural(Str::camel($name)),
+            '{{pluralSlug}}'    => Str::plural(Str::slug($name)),
+            '{{pluralSnake}}'   => Str::plural(Str::snake($name)),
+            '{{pluralClass}}'   => Str::plural(Str::studly($name)),
+            '{{singularCamel}}' => Str::singular(Str::camel($name)),
+            '{{singularSlug}}'  => Str::singular(Str::slug($name)),
+            '{{singularSnake}}' => Str::singular(Str::snake($name)),
+            '{{singularClass}}' => Str::singular(Str::studly($name)),
             '{{namespace}}'     => $this->getNamespace(),
         ];
     }
